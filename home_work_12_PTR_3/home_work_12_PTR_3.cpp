@@ -1,5 +1,21 @@
 ﻿
 #include <iostream>
+#include <string>
+
+class str_error : public std::exception // обработка исключений
+{
+public:
+    str_error(const std::string& message) : message{ message }
+    {
+    }
+    const char* what() const noexcept override
+    {
+        return message.c_str();     // получаем из std::string строку const char*
+    }
+private:
+    std::string message;    // сообщение об ошибке
+};
+
 template<class T>
 class unique_ptr {
 public:
@@ -9,7 +25,7 @@ public:
     {
         if (ptr) {
             std::cout << "destructor called\n";
-            delete[] ptr;
+            delete ptr;
         }
     }
 
@@ -20,25 +36,27 @@ public:
     }
     unique_ptr (unique_ptr& other) = delete;
 
-
-    T& operator*(){
-        if (ptr)
-        return  *ptr;
-   }
-
-   T& operator=(const unique_ptr& other) = delete;
-
+ 
+    T& operator*() {
+        T x{404};
+        if (ptr) return  *ptr;
+        else {
+            std::cout << "error ";
+            return x;
+        }
+    }
+  
+    T& operator=(const unique_ptr& other) = delete;
     private:
-    T* ptr = new T{ nullptr };
+    T* ptr{nullptr};
+    
 };
 
 
 int main()
 {
-    std::cout << "Hello World!\n";
     unique_ptr<int> ptr(new int(17));
     unique_ptr<int> ptr_2(new int(10));
-
     std::cout << *ptr << std::endl;
     std::cout << *ptr_2 << std::endl;
    // ptr = ptr_2;
